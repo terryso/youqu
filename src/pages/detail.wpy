@@ -1,0 +1,93 @@
+<template>
+  <view class="container">
+    <video class="video"
+           objectFit="fill"
+           src="{{item.playUrl}}"
+           poster="{{item.cover.feed}}"
+           duration="{{item.duration}}"
+           autoplay="{{isWifi}}"
+           controls>
+    </video>
+    <view class="text">
+      <text class="title">{{item.title}}</text>
+      <text class="subtitle">{{item.category}} / {{item.durationText}}</text>
+      <text class="detail">{{item.description}}</text>
+    </view>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import {getItem} from '../api/item'
+
+  export default class Detail extends wepy.page {
+    config = {}
+    components = {}
+    data = {
+      item: {},
+      isWifi: false
+    }
+    methods = {}
+
+    onLoad(options) {
+      let item = options.item
+      if (item) {
+        getItem(item).then((res) => {
+          this.item = res
+          this.$apply()
+        }).catch((rej) => {
+          console.log(rej)
+        })
+      } else {
+        this.item = wepy.$instance.globalData.selectedItem
+      }
+    }
+
+    onShow() {
+      wepy.getNetworkType().then((res) => {
+        if (res.networkType === 'wifi') {
+          this.isWifi = true
+          this.$apply()
+        }
+      })
+    }
+
+    onShareAppMessage(res) {
+      return {
+        title: this.item.title,
+        path: '/pages/detail?item=' + this.item.id
+      }
+    }
+  }
+</script>
+
+<style lang="scss">
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    background-color: #555555;
+    color: #ffffff;
+    height: 100%;
+    .video {
+      width: 100%;
+    }
+    .text {
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
+      .title {
+        font-size: 17px;
+      }
+      .subtitle {
+        margin-top: 10px;
+        font-size: 14px;
+      }
+      .detail {
+        margin-top: 15px;
+        font-size: 12px;
+      }
+    }
+  }
+
+</style>
