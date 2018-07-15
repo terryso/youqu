@@ -2,6 +2,8 @@
 ## 有趣视频
 > 有趣视频是本人使用wepy框架, 模仿开眼App的第一个小程序练手小作
 
+![gh_588352b71fbf_258](http://7xnju0.dl1.z0.glb.clouddn.com/gh_588352b71fbf_258.jpg)
+
 ## 体验步骤
 
 ### 1. 安装 wepy
