@@ -1,7 +1,7 @@
 <template>
   <view class="container">
     <block wx:for="{{ items }}" wx:key="id">
-      <view class="zan-panel" @tap="gotoDetail({{item}})">
+      <view class="zan-panel zan-panel--without-margin-top" @tap="gotoDetail({{item}})">
         <view class="zan-cell">
           <view class="video">
             <image src="{{item.cover.feed}}" mode="widthFix"/>
@@ -34,7 +34,7 @@
     }
     components = {
       zanLoadmore1: zanLoadmore,
-      zanLoadmore2: zanLoadmore,
+      zanLoadmore2: zanLoadmore
     }
     data = {
       items: [],
