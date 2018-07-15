@@ -1,7 +1,7 @@
 <template>
   <view class="container">
     <block wx:for="{{ items }}" wx:key="id">
-      <view class="zan-panel" @tap="gotoDetail({{item}})">
+      <view class="zan-panel zan-panel--without-margin-top" @tap="gotoDetail({{item}})">
         <view class="zan-cell">
           <view class="video">
             <image src="{{item.cover.feed}}" mode="widthFix"/>
@@ -34,7 +34,7 @@
     }
     components = {
       zanLoadmore1: zanLoadmore,
-      zanLoadmore2: zanLoadmore,
+      zanLoadmore2: zanLoadmore
     }
     data = {
       items: [],
@@ -58,14 +58,14 @@
 
     onShow() {
       if (this.items.length === 0) {
-        this.reloadData()
+        this.loadData()
       }
     }
 
-    reloadData() {
-      getItems().then((res) => {
-        this.items = res.data
-        this.items.forEach(function (item, index) {
+    loadData(nextPage) {
+      getItems(nextPage).then((res) => {
+        this.items = nextPage ? this.items.concat(res.data) : res.data
+        this.items.forEach(function (item) {
           item.durationText = secondToTime(item.duration)
         })
         this.nextPage = res.next_page_url
@@ -77,7 +77,7 @@
     }
 
     onPullDownRefresh() {
-      this.reloadData()
+      this.loadData()
     }
 
     onReachBottom() {
@@ -85,16 +85,7 @@
         this.showLoadMore = true
         this.showNoMore = false
         this.$apply()
-        getItems(this.nextPage).then((res) => {
-          this.items = this.items.concat(res.data)
-          this.items.forEach(function (item, index) {
-            item.durationText = secondToTime(item.duration)
-          })
-          this.nextPage = res.next_page_url
-          this.$apply()
-        }).catch((rej) => {
-          console.log(rej)
-        })
+        this.loadData(this.nextPage)
       } else {
         this.showLoadMore = false
         this.showNoMore = true

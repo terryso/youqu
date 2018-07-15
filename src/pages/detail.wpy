@@ -13,21 +13,53 @@
       <text class="subtitle">{{item.category}} / {{item.durationText}}</text>
       <text class="detail">{{item.description}}</text>
     </view>
+
+    <view class="zan-panel-title">相关推荐</view>
+    <block wx:for="{{ relatedItems }}" wx:key="id">
+      <view class="zan-panel zan-panel--without-margin-top zan-panel--without-border" @tap="gotoDetail({{item}})">
+        <view class="zan-cell">
+          <view class="zan-cell__bd">
+            <view class="related-video">
+              <image src="{{item.cover.feed}}" mode="aspectFill"/>
+            </view>
+            <view class="related-text">
+              <text class="title">{{item.title}}</text>
+              <text class="subtitle">#{{item.category}} / {{item.durationText}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </block>
+    <zanLoadmore :nomore="_true" wx:if="{{showNoMore}}"></zanLoadmore>
   </view>
 </template>
 
 <script>
   import wepy from 'wepy'
-  import {getItem} from '../api/item'
+  import {getItem, getRelatedItems} from '../api/item'
+  import {secondToTime} from '../common/utils'
+  import zanLoadmore from '../components/zan-loadmore'
 
   export default class Detail extends wepy.page {
     config = {}
-    components = {}
+    components = {
+      zanLoadmore: zanLoadmore
+    }
     data = {
       item: {},
-      isWifi: false
+      relatedItems: [],
+      isWifi: false,
+      _true: true,
+      showNoMore: false
     }
-    methods = {}
+    methods = {
+      gotoDetail(item) {
+        wepy.$instance.globalData.selectedItem = item
+        wepy.redirectTo({
+          url: 'detail'
+        })
+      }
+    }
 
     onLoad(options) {
       let item = options.item
@@ -40,7 +72,17 @@
         })
       } else {
         this.item = wepy.$instance.globalData.selectedItem
+        item = this.item.id
       }
+
+      getRelatedItems(item).then((res) => {
+        this.relatedItems = res
+        this.relatedItems.forEach(function (item) {
+          item.durationText = secondToTime(item.duration)
+        })
+        this.showNoMore = true
+        this.$apply()
+      })
     }
 
     onShow() {
@@ -62,6 +104,8 @@
 </script>
 
 <style lang="scss">
+  @import '../zanui/panel.scss';
+  @import '../zanui/cell.scss';
 
   .container {
     display: flex;
@@ -78,15 +122,60 @@
       padding: 15px;
       .title {
         font-size: 17px;
+        font-weight: bold;
       }
       .subtitle {
         margin-top: 10px;
         font-size: 14px;
+        color: lightgrey;
       }
       .detail {
         margin-top: 15px;
         font-size: 12px;
+        color: lightgrey;
       }
+    }
+    .zan-panel-title {
+      font-size: 16px;
+      font-weight: bold;
+      line-height: 1;
+      color: #fff;
+      padding: 10px 15px 10px 15px;
+    }
+    .zan-panel {
+      background-color: #555555;
+      .zan-cell {
+        padding: 4px 15px;
+        .zan-cell__bd {
+          display: flex;
+          .related-video {
+            image {
+              width: 150px;
+              height: 80px;
+              border-radius: 4px;
+            }
+          }
+          .related-text {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            margin-left: 10px;
+            justify-content: center;
+            .title {
+              font-size: 14px;
+              font-weight: bold;
+            }
+            .subtitle {
+              font-size: 12px;
+              color: lightgrey;
+              margin-top: 10px;
+            }
+          }
+        }
+      }
+    }
+    .zan-loadmore--nomore .zan-loadmore__tips {
+      background-color: rgba(0, 0, 0, 0);
     }
   }
 
