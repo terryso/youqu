@@ -1,0 +1,173 @@
+<template>
+  <view class="container">
+    <block wx:for="{{ items }}" wx:key="id">
+      <view class="zan-panel" @tap="gotoDetail({{item}})">
+        <view class="zan-cell">
+          <view class="video">
+            <image src="{{item.cover.feed}}" mode="widthFix"/>
+            <view class="zan-tag">{{item.durationText}}</view>
+          </view>
+          <view class="content">
+            <image class="avatar" src="{{item.author.icon}}"/>
+            <view class="text">
+              <text class="title">{{item.title}}</text>
+              <text class="subtitle">{{item.author.name}} / #{{item.category}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </block>
+    <zanLoadmore1 :loading="_true" wx:if="{{showLoadMore}}"></zanLoadmore1>
+    <zanLoadmore2 :nomore="_true" wx:if="{{showNoMore}}"></zanLoadmore2>
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import {getItems} from '../api/item'
+  import {secondToTime} from '../common/utils'
+  import zanLoadmore from '../components/zan-loadmore'
+
+  export default class Index extends wepy.page {
+    config = {
+      enablePullDownRefresh: true
+    }
+    components = {
+      zanLoadmore1: zanLoadmore,
+      zanLoadmore2: zanLoadmore,
+    }
+    data = {
+      items: [],
+      showLoadMore: false,
+      showNoMore: false,
+      _true: true,
+      nextPage: ''
+    }
+    methods = {
+      gotoDetail(item) {
+        wepy.$instance.globalData.selectedItem = item
+        wepy.navigateTo({
+          url: 'detail'
+        })
+      }
+    }
+
+    onLoad() {
+
+    }
+
+    onShow() {
+      if (this.items.length === 0) {
+        this.reloadData()
+      }
+    }
+
+    reloadData() {
+      getItems().then((res) => {
+        this.items = res.data
+        this.items.forEach(function (item, index) {
+          item.durationText = secondToTime(item.duration)
+        })
+        this.nextPage = res.next_page_url
+        wepy.stopPullDownRefresh()
+        this.$apply()
+      }).catch((rej) => {
+        console.log(rej)
+      })
+    }
+
+    onPullDownRefresh() {
+      this.reloadData()
+    }
+
+    onReachBottom() {
+      if (this.nextPage) {
+        this.showLoadMore = true
+        this.showNoMore = false
+        this.$apply()
+        getItems(this.nextPage).then((res) => {
+          this.items = this.items.concat(res.data)
+          this.items.forEach(function (item, index) {
+            item.durationText = secondToTime(item.duration)
+          })
+          this.nextPage = res.next_page_url
+          this.$apply()
+        }).catch((rej) => {
+          console.log(rej)
+        })
+      } else {
+        this.showLoadMore = false
+        this.showNoMore = true
+        this.$apply()
+      }
+    }
+
+    onShareAppMessage(res) {
+      return {
+        title: '有趣视频, 您每天开心的来源',
+        path: '/pages/index'
+      }
+    }
+  }
+</script>
+
+<style lang="scss">
+  @import '../zanui/panel.scss';
+  @import '../zanui/cell.scss';
+  @import '../zanui/tag.scss';
+
+  .container {
+    .zan-cell {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 10px 10px 10px 10px;
+      .video {
+        width: 100%;
+        position: relative;
+        image {
+          width: 100%;
+          border-radius: 4px;
+        }
+        .zan-tag {
+          position: absolute;
+          bottom: 15px;
+          right: 10px;
+          background: rgba(0, 0, 0, 0.4);
+
+          &::after {
+            @include hairline;
+            border-width: 0;
+          }
+        }
+      }
+      .content {
+        margin-top: 10px;
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        .avatar {
+          width: 40px;
+          height: 40px;
+          border-radius: 20px;
+        }
+        .text {
+          display: flex;
+          flex-direction: column;
+          margin-left: 10px;
+          justify-content: center;
+          .title {
+            font-size: 14px;
+            font-weight: bold;
+          }
+          .subtitle {
+            margin-top: 5px;
+            font-size: 11px;
+            color: grey;
+          }
+        }
+      }
+    }
+  }
+
+</style>
