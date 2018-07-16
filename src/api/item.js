@@ -2,14 +2,17 @@ import wepy from 'wepy'
 
 export function getItems(url) {
   if (!url) {
-    url = 'https://baobab.kaiyanapp.com/api/v2/feed?num=20'
+    url = 'https://baobab.kaiyanapp.com/api/v2/feed?num=2'
   }
   return wepy.request(url).then((res) => {
     var statusCode = res.statusCode
     var data = res.data
     if (statusCode === 200) {
-      var items = data.issueList[0].itemList
-        .filter(item => item.type === 'video')
+      var itemList = []
+      data.issueList.forEach(function (item) {
+        itemList = itemList.concat(item.itemList)
+      })
+      var items = itemList.filter(item => item.type === 'video')
         .map(item => item.data)
       var ret = {
         next_page_url: data.nextPageUrl,
