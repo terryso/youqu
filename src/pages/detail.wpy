@@ -59,9 +59,17 @@
       gotoDetail(item) {
         this.videoContext.pause()
         wepy.$instance.globalData.selectedItem = item
-        wepy.navigateTo({
-          url: 'detail'
-        })
+        let pagesCount = getCurrentPages().length
+        console.log('pagesCount: ' + pagesCount)
+        if (pagesCount > 5) {
+          wepy.redirectTo({
+            url: 'detail'
+          })
+        } else {
+          wepy.navigateTo({
+            url: 'detail'
+          })
+        }
       },
       onPlay() {
         wepy.setStorage({
