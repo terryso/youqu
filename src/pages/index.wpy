@@ -10,14 +10,14 @@
         <view class="zan-panel zan-panel--without-margin-top" @tap="gotoDetail({{item}})">
           <view class="zan-cell">
             <view class="video">
-              <image src="{{item.cover.feed}}" mode="widthFix"/>
+              <image src="{{item.cover.feed}}" mode="widthFix" />
               <view class="zan-tag">{{item.durationText}}</view>
             </view>
             <view class="content">
               <image class="avatar" src="{{item.author.icon}}"/>
               <view class="text">
                 <text class="title">{{item.title}}</text>
-                <text class="subtitle">{{item.author.name}} / #{{item.category}}</text>
+                <text class="subtitle">{{item.author.name}} / #{{item.category}} / {{item.consumption.collectionCount}}人喜欢</text>
               </view>
             </view>
           </view>
@@ -68,15 +68,26 @@
 
     onShow() {
       if (this.items.length === 0) {
+        wepy.getStorage({
+          key: 'lastPlayItem'
+        }).then((res) => {
+          if (res.data) {
+            wepy.$instance.globalData.selectedItem = res.data
+            wepy.navigateTo({
+              url: 'detail'
+            })
+          }
+        })
         this.loadData()
       }
     }
 
     loadData(nextPage) {
       getItems(nextPage).then((res) => {
-        this.items = nextPage ? this.items.concat(res.data) : res.data
+        this.items = this.items.concat(res.data)
         this.items.forEach(function (item) {
           item.durationText = secondToTime(item.duration)
+          item.dateText = new Date(item.releaseTime).toLocaleDateString()
         })
         this.nextPage = res.next_page_url
         this.isLoading = false
@@ -119,53 +130,55 @@
   @import '../zanui/tag.scss';
 
   .container {
-    .zan-cell {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 10px 10px 10px 10px;
-      .video {
-        width: 100%;
-        position: relative;
-        image {
-          width: 100%;
-          border-radius: 4px;
-        }
-        .zan-tag {
-          position: absolute;
-          bottom: 15px;
-          right: 10px;
-          background: rgba(0, 0, 0, 0.4);
-
-          &::after {
-            @include hairline;
-            border-width: 0;
-          }
-        }
-      }
-      .content {
-        margin-top: 10px;
+    .zan-panel {
+      .zan-cell {
         display: flex;
-        flex-direction: row;
-        width: 100%;
-        .avatar {
-          width: 40px;
-          height: 40px;
-          border-radius: 20px;
-        }
-        .text {
-          display: flex;
-          flex-direction: column;
-          margin-left: 10px;
-          justify-content: center;
-          .title {
-            font-size: 14px;
-            font-weight: bold;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 10px 10px 10px 10px;
+        .video {
+          width: 100%;
+          position: relative;
+          image {
+            width: 100%;
+            border-radius: 4px;
           }
-          .subtitle {
-            margin-top: 5px;
-            font-size: 11px;
-            color: grey;
+          .zan-tag {
+            position: absolute;
+            bottom: 15px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.4);
+
+            &::after {
+              @include hairline;
+              border-width: 0;
+            }
+          }
+        }
+        .content {
+          margin-top: 10px;
+          display: flex;
+          flex-direction: row;
+          width: 100%;
+          .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+          }
+          .text {
+            display: flex;
+            flex-direction: column;
+            margin-left: 10px;
+            justify-content: center;
+            .title {
+              font-size: 14px;
+              font-weight: bold;
+            }
+            .subtitle {
+              margin-top: 5px;
+              font-size: 11px;
+              color: grey;
+            }
           }
         }
       }

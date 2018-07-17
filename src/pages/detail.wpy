@@ -1,20 +1,23 @@
 <template>
   <view class="container">
-    <video class="video"
+    <video id="videoPlayer"
+           class="video"
            objectFit="fill"
            src="{{item.playUrl}}"
            poster="{{item.cover.feed}}"
            duration="{{item.duration}}"
            autoplay="{{isWifi}}"
+           @play="onPlay"
+           @ended="onEnded"
            controls>
     </video>
     <view class="text">
       <text class="title">{{item.title}}</text>
-      <text class="subtitle">{{item.category}} / {{item.durationText}}</text>
+      <text class="subtitle">{{item.category}} / {{item.durationText}} / {{item.consumption.collectionCount}}人喜欢</text>
       <text class="detail">{{item.description}}</text>
     </view>
 
-    <view class="zan-panel-title">相关推荐</view>
+    <view class="zan-panel-title" wx:if="{{relatedItems.length}}">相关推荐</view>
     <block wx:for="{{ relatedItems }}" wx:key="id">
       <view class="zan-panel zan-panel--without-margin-top zan-panel--without-border" @tap="gotoDetail({{item}})">
         <view class="zan-cell">
@@ -54,9 +57,22 @@
     }
     methods = {
       gotoDetail(item) {
+        this.videoContext.pause()
         wepy.$instance.globalData.selectedItem = item
-        wepy.redirectTo({
+        wepy.navigateTo({
           url: 'detail'
+        })
+      },
+      onPlay() {
+        wepy.setStorage({
+          key: 'lastPlayItem',
+          data: this.item
+        })
+      },
+      onEnded() {
+        wepy.setStorage({
+          key: 'lastPlayItem',
+          data: null
         })
       }
     }
@@ -66,6 +82,8 @@
       if (item) {
         getItem(item).then((res) => {
           this.item = res
+          this.item.durationText = secondToTime(this.item.duration)
+          this.item.dateText = new Date(item.releaseTime).toLocaleDateString()
           this.$apply()
         }).catch((rej) => {
           console.log(rej)
@@ -79,6 +97,7 @@
         this.relatedItems = res
         this.relatedItems.forEach(function (item) {
           item.durationText = secondToTime(item.duration)
+          item.dateText = new Date(item.releaseTime).toLocaleDateString()
         })
         this.showNoMore = true
         this.$apply()
@@ -86,6 +105,7 @@
     }
 
     onShow() {
+      this.videoContext = wepy.createVideoContext('videoPlayer')
       wepy.getNetworkType().then((res) => {
         if (res.networkType === 'wifi') {
           this.isWifi = true
