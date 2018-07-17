@@ -63,21 +63,20 @@
     }
 
     onLoad() {
-
+      wepy.getStorage({
+        key: 'lastPlayItem'
+      }).then((res) => {
+        if (res.data) {
+          wepy.$instance.globalData.selectedItem = res.data
+          wepy.navigateTo({
+            url: 'detail'
+          })
+        }
+      })
     }
 
     onShow() {
       if (this.items.length === 0) {
-        wepy.getStorage({
-          key: 'lastPlayItem'
-        }).then((res) => {
-          if (res.data) {
-            wepy.$instance.globalData.selectedItem = res.data
-            wepy.navigateTo({
-              url: 'detail'
-            })
-          }
-        })
         this.loadData()
       }
     }
@@ -117,7 +116,7 @@
 
     onShareAppMessage(res) {
       return {
-        title: '有趣视频, 您每天开心的来源',
+        title: '大茄视频, 您每天开心的来源',
         path: '/pages/index'
       }
     }

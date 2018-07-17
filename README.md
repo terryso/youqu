@@ -4,7 +4,7 @@
 
 ### 扫码体验
 
-![gh_588352b71fbf_258](http://7xnju0.dl1.z0.glb.clouddn.com/gh_588352b71fbf_258.jpg)
+![gh_169b1bb7868b_258 -1-](http://7xnju0.dl1.z0.glb.clouddn.com/gh_169b1bb7868b_258 (1).jpg)
 
 ### 效果图
 

@@ -48,7 +48,7 @@ export default class extends wepy.app {
       backgroundTextStyle: 'dark',
       backgroundColor: '#f5f5f5',
       navigationBarBackgroundColor: '#ffffff',
-      navigationBarTitleText: '有趣视频',
+      navigationBarTitleText: '大茄视频',
       navigationBarTextStyle: 'black',
       enablePullDownRefresh: false
     },
