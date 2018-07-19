@@ -1,5 +1,4 @@
 <style lang="css">
-@import '/zanui/helper.wxss';
 
 .container {
   background: #f9f9f9;
@@ -56,6 +55,7 @@ export default class extends wepy.app {
   }
 
   globalData = {
+    showPlayer: false
   }
 
   constructor() {

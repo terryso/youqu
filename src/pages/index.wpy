@@ -35,6 +35,7 @@
   import {secondToTime} from '../common/utils'
   import zanLoadmore from '../components/zan-loadmore'
   import skeletonLoading from '../components/zan-skeleton-loading'
+  import {getAppVersion} from '../api/app'
 
   export default class Index extends wepy.page {
     config = {
@@ -63,15 +64,19 @@
     }
 
     onLoad() {
-      wepy.getStorage({
-        key: 'lastPlayItem'
-      }).then((res) => {
-        if (res.data) {
-          wepy.$instance.globalData.selectedItem = res.data
-          wepy.navigateTo({
-            url: 'detail'
-          })
-        }
+      getAppVersion().then((res) => {
+        wepy.$instance.globalData.showPlayer = res.is_valid
+
+        wepy.getStorage({
+          key: 'lastPlayItem'
+        }).then((res) => {
+          if (res.data) {
+            wepy.$instance.globalData.selectedItem = res.data
+            wepy.navigateTo({
+              url: 'detail'
+            })
+          }
+        })
       })
     }
 
