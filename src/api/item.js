@@ -48,6 +48,60 @@ export function getRelatedItems(itemId) {
   })
 }
 
+export function getUserItems(uid, url) {
+  if (!url) {
+    url = 'https://baobab.kaiyanapp.com/api/v5/userInfo/tab/works?uid=' + uid
+  }
+
+  return wepy.request(url).then((res) => {
+    var statusCode = res.statusCode
+    var data = res.data
+    if (statusCode === 200) {
+      var items = data.itemList
+        .filter(item => item.data.content.type === 'video')
+        .map(item => item.data.content)
+
+      var ret = {
+        next_page_url: data.nextPageUrl,
+        data: items
+      }
+      return Promise.resolve(ret)
+    } else {
+      return Promise.reject({
+        'error_code': statusCode + '',
+        'error_message': '服务器出错了...'
+      })
+    }
+  })
+}
+
+export function getCategoryItems(cid, url) {
+  if (!url) {
+    url = 'https://baobab.kaiyanapp.com/api/v4/categories/videoList?id=' + cid
+  }
+
+  return wepy.request(url).then((res) => {
+    var statusCode = res.statusCode
+    var data = res.data
+    if (statusCode === 200) {
+      var items = data.itemList
+        .filter(item => item.type === 'video')
+        .map(item => item.data)
+
+      var ret = {
+        next_page_url: data.nextPageUrl,
+        data: items
+      }
+      return Promise.resolve(ret)
+    } else {
+      return Promise.reject({
+        'error_code': statusCode + '',
+        'error_message': '服务器出错了...'
+      })
+    }
+  })
+}
+
 export function getItem(itemId) {
   let url = 'https://baobab.kaiyanapp.com/api/v1/video/' + itemId
   return wepy.request(url).then((res) => {

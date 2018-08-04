@@ -43,6 +43,7 @@
   import {getItem, getRelatedItems} from '../api/item'
   import {secondToTime} from '../common/utils'
   import zanLoadmore from '../components/zan-loadmore'
+  import {getAppVersion} from '../api/app'
 
   export default class Detail extends wepy.page {
     config = {}
@@ -132,6 +133,14 @@
     }
 
     onShow() {
+      if (this.isValid === false) {
+        getAppVersion().then((res) => {
+          wepy.$instance.globalData.showPlayer = res.is_valid
+          this.isValid = res.is_valid
+          this.$apply()
+        })
+      }
+
       this.videoContext = wepy.createVideoContext('videoPlayer')
       wepy.getNetworkType().then((res) => {
         if (res.networkType === 'wifi') {

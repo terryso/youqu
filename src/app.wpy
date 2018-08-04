@@ -41,7 +41,10 @@ export default class extends wepy.app {
   config = {
     pages: [
       'pages/index',
-      'pages/detail'
+      'pages/detail',
+      'pages/category',
+      'pages/category-works',
+      'pages/profile'
     ],
     window: {
       backgroundTextStyle: 'dark',
@@ -50,6 +53,15 @@ export default class extends wepy.app {
       navigationBarTitleText: '大茄视频',
       navigationBarTextStyle: 'black',
       enablePullDownRefresh: false
+    },
+    tabBar: {
+      list: [{
+        pagePath: 'pages/index',
+        text: '首页'
+      }, {
+        pagePath: 'pages/category',
+        text: '分类'
+      }]
     },
     debug: true
   }

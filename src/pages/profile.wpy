@@ -1,0 +1,26 @@
+<style lang="less" type="text/less" scoped>
+
+</style>
+
+<template>
+  <view class="container">
+    
+  </view>
+</template>
+
+<script>
+  import wepy from 'wepy'
+
+  export default class Profile extends wepy.page {
+    config = {};
+    components = {};
+    props = {};
+    data = {};
+    methods = {};
+    events = {};
+
+    onLoad() {
+
+    }
+  }
+</script>

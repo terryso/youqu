@@ -6,18 +6,24 @@
     <skeletonLoading wx:if="{{isLoading}}"></skeletonLoading>
     <skeletonLoading wx:if="{{isLoading}}"></skeletonLoading>
     <view wx:else>
+      <view class="category-header" style="background-image: url({{categoryInfo.headerImage}})">
+        <text class="category-title">#{{categoryInfo.name}}</text>
+        <text class="category-description">{{categoryInfo.description}}</text>
+      </view>
       <block wx:for="{{ items }}" wx:key="id">
         <view class="zan-panel zan-panel--without-margin-top" @tap="gotoDetail({{item}})">
           <view class="zan-cell">
             <view class="video">
-              <image src="{{item.cover.feed}}" mode="widthFix" />
+              <image src="{{item.cover.feed}}" mode="widthFix"/>
               <view class="zan-tag">{{item.durationText}}</view>
             </view>
             <view class="content">
-              <image class="avatar" src="{{item.author.icon}}" />
+              <image class="avatar" src="{{item.author.icon}}"/>
               <view class="text">
                 <text class="title">{{item.title}}</text>
-                <text class="subtitle">{{item.author.name}} / #{{item.category}} / {{item.consumption.collectionCount}}人喜欢</text>
+                <text class="subtitle">{{item.author.name}} / #{{item.category}} /
+                  {{item.consumption.collectionCount}}人喜欢
+                </text>
               </view>
             </view>
           </view>
@@ -31,11 +37,11 @@
 
 <script>
   import wepy from 'wepy'
-  import {getItems} from '../api/item'
+  import {getCategoryItems} from '../api/item'
   import {secondToTime} from '../common/utils'
   import zanLoadmore from '../components/zan-loadmore'
   import skeletonLoading from '../components/zan-skeleton-loading'
-  import {getAppVersion} from '../api/app'
+  import {getCategory} from '../api/category'
 
   export default class Index extends wepy.page {
     config = {
@@ -47,12 +53,14 @@
       skeletonLoading: skeletonLoading
     }
     data = {
+      cid: '',
       items: [],
       showLoadMore: false,
       showNoMore: false,
       _true: true,
       nextPage: '',
-      isLoading: true
+      isLoading: true,
+      categoryInfo: {}
     }
     methods = {
       gotoDetail(item) {
@@ -63,20 +71,11 @@
       }
     }
 
-    onLoad() {
-      getAppVersion().then((res) => {
-        wepy.$instance.globalData.showPlayer = res.is_valid
-
-        // wepy.getStorage({
-        //   key: 'lastPlayItem'
-        // }).then((res) => {
-        //   if (res.data) {
-        //     wepy.$instance.globalData.selectedItem = res.data
-        //     wepy.navigateTo({
-        //       url: 'detail'
-        //     })
-        //   }
-        // })
+    onLoad(options) {
+      this.cid = options.cid
+      getCategory(this.cid).then((res) => {
+        this.categoryInfo = res
+        this.$apply()
       })
     }
 
@@ -87,7 +86,7 @@
     }
 
     loadData(nextPage) {
-      getItems(nextPage).then((res) => {
+      getCategoryItems(this.cid, nextPage).then((res) => {
         this.items = this.items.length === 0 ? res.data : this.items.concat(res.data)
         this.items.forEach(function (item) {
           item.durationText = secondToTime(item.duration)
@@ -134,6 +133,23 @@
   @import '../zanui/tag.scss';
 
   .container {
+    .category-header {
+      height: 180px;
+      background-size: cover;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #fff;
+      .category-title {
+        margin-top: 40px;
+        font-size: 20px;
+        font-weight: bold;
+      }
+      .category-description {
+        font-size: 12px;
+        margin-top: 10px;
+      }
+    }
     .zan-field {
       background-color: grey;
     }
