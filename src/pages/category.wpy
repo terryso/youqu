@@ -1,0 +1,66 @@
+<template>
+  <view class="container">
+    <block wx:for="{{ items }}" wx:key="id">
+      <view class="category" @tap="gotoCategoryWorks({{item}})">
+        <image src="{{item.icon}}" mode="widthFix" />
+        <text class="title">{{item.title}}</text>
+      </view>
+
+    </block>
+  </view>
+
+</template>
+
+<script>
+  import wepy from 'wepy'
+  import {getCategories} from '../api/category'
+
+  export default class Category extends wepy.page {
+    config = {}
+    components = {}
+    props = {}
+    data = {
+      items: []
+    }
+    methods = {
+      gotoCategoryWorks(item) {
+        wepy.navigateTo({
+          url: 'category-works?cid=' + item.id
+        })
+      }
+    }
+    events = {}
+
+    onLoad() {
+      getCategories().then((res) => {
+        this.items = res
+        this.$apply()
+      })
+    }
+  }
+</script>
+
+<style lang="scss" scoped>
+  .container {
+    display: flex;
+    flex-flow: row wrap;
+    padding: 15px 8px 0px 8px;
+
+    .category {
+      width: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      image {
+        width: 92%;
+        border-radius: 8px;
+      }
+      .title {
+        margin-top: 10px;
+        margin-bottom: 10px;
+        font-size: 14px;
+        font-weight: bold;
+      }
+    }
+  }
+</style>

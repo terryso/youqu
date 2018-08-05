@@ -1,20 +1,24 @@
 <template>
   <view class="container">
-    <video class="video"
+    <video id="videoPlayer"
+           class="video"
            objectFit="fill"
            src="{{item.playUrl}}"
            poster="{{item.cover.feed}}"
            duration="{{item.duration}}"
            autoplay="{{isWifi}}"
-           controls>
+           @play="onPlay"
+           @ended="onEnded"
+           controls wx:if="{{isValid}}">
     </video>
+    <image class="poster" src="{{item.cover.feed}}" mode="widthFix" wx:if="{{isValid === false}}" />
     <view class="text">
       <text class="title">{{item.title}}</text>
-      <text class="subtitle">{{item.category}} / {{item.durationText}}</text>
+      <text class="subtitle">{{item.category}} / {{item.durationText}} / {{item.consumption.collectionCount}}人喜欢</text>
       <text class="detail">{{item.description}}</text>
+      <button class="zan-btn zan-btn--primary" @tap="copyUrl({{item.playUrl}})" wx:if="{{isValid === false}}">复制链接, 粘贴到浏览器中观看</button>
     </view>
-
-    <view class="zan-panel-title">相关推荐</view>
+    <view class="zan-panel-title" wx:if="{{relatedItems.length}}">相关推荐</view>
     <block wx:for="{{ relatedItems }}" wx:key="id">
       <view class="zan-panel zan-panel--without-margin-top zan-panel--without-border" @tap="gotoDetail({{item}})">
         <view class="zan-cell">
@@ -39,6 +43,7 @@
   import {getItem, getRelatedItems} from '../api/item'
   import {secondToTime} from '../common/utils'
   import zanLoadmore from '../components/zan-loadmore'
+  import {getAppVersion} from '../api/app'
 
   export default class Detail extends wepy.page {
     config = {}
@@ -50,22 +55,63 @@
       relatedItems: [],
       isWifi: false,
       _true: true,
-      showNoMore: false
+      showNoMore: false,
+      isValid: false
     }
     methods = {
       gotoDetail(item) {
+        this.videoContext.pause()
         wepy.$instance.globalData.selectedItem = item
-        wepy.redirectTo({
-          url: 'detail'
+        let pagesCount = getCurrentPages().length
+        console.log('pagesCount: ' + pagesCount)
+        if (pagesCount > 5) {
+          wepy.redirectTo({
+            url: 'detail'
+          })
+        } else {
+          wepy.navigateTo({
+            url: 'detail'
+          })
+        }
+      },
+      onPlay() {
+        wepy.reportAnalytics('play_video', {
+          video_id: this.item.id,
+          video_title: this.item.title,
+          video_category: this.item.category
+        })
+        wepy.setStorage({
+          key: 'lastPlayItem',
+          data: this.item
+        })
+      },
+      onEnded() {
+        wepy.setStorage({
+          key: 'lastPlayItem',
+          data: null
+        })
+      },
+      copyUrl(url) {
+        wepy.setClipboardData({data: url}).then((res) => {
+          wepy.showToast({
+            title: '复制成功',
+            icon: 'success',
+            duration: 2000
+          })
         })
       }
     }
 
     onLoad(options) {
+      this.isValid = wepy.$instance.globalData.showPlayer
+      this.$apply()
+
       let item = options.item
       if (item) {
         getItem(item).then((res) => {
           this.item = res
+          this.item.durationText = secondToTime(this.item.duration)
+          this.item.dateText = new Date(item.releaseTime).toLocaleDateString()
           this.$apply()
         }).catch((rej) => {
           console.log(rej)
@@ -79,6 +125,7 @@
         this.relatedItems = res
         this.relatedItems.forEach(function (item) {
           item.durationText = secondToTime(item.duration)
+          item.dateText = new Date(item.releaseTime).toLocaleDateString()
         })
         this.showNoMore = true
         this.$apply()
@@ -86,6 +133,15 @@
     }
 
     onShow() {
+      if (this.isValid === false) {
+        getAppVersion().then((res) => {
+          wepy.$instance.globalData.showPlayer = res.is_valid
+          this.isValid = res.is_valid
+          this.$apply()
+        })
+      }
+
+      this.videoContext = wepy.createVideoContext('videoPlayer')
       wepy.getNetworkType().then((res) => {
         if (res.networkType === 'wifi') {
           this.isWifi = true
@@ -106,6 +162,7 @@
 <style lang="scss">
   @import '../zanui/panel.scss';
   @import '../zanui/cell.scss';
+  @import '../zanui/btn.scss';
 
   .container {
     display: flex;
@@ -113,6 +170,9 @@
     background-color: #555555;
     color: #ffffff;
     height: 100%;
+    .poster {
+      width: 100%;
+    }
     .video {
       width: 100%;
     }
@@ -134,7 +194,12 @@
         font-size: 12px;
         color: lightgrey;
       }
+      .zan-btn {
+        margin-top: 15px;
+        margin-left: 0;
+      }
     }
+
     .zan-panel-title {
       font-size: 16px;
       font-weight: bold;

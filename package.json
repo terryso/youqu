@@ -1,7 +1,7 @@
 {
-  "name": "youqu",
-  "version": "0.0.9",
-  "description": "有趣视频, 您每天开心的来源",
+  "name": "daqie",
+  "version": "1.0.0",
+  "description": "大茄视频, 您每天开心的来源",
   "main": "dist/app.js",
   "scripts": {
     "build": "cross-env NODE_ENV=production wepy build --no-cache",
