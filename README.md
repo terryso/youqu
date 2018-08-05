@@ -46,7 +46,8 @@ wepy build
 
 如果觉得本项目对你有比较大的帮助, 可以请我喝杯咖啡.
 
-![IMG_6444](http://7xnju0.dl1.z0.glb.clouddn.com/IMG_6444.JPG)
+![IMG_64441](http://7xnju0.dl1.z0.glb.clouddn.com/IMG_64441.JPG)
+
 
 
 
