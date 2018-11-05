@@ -71,6 +71,11 @@
         })
       },
       onConfirm(e) {
+        wx.showToast({
+          title: '搜索中',
+          icon: 'loading',
+          duration: 2000
+        })
         this.isSearch = true
         this.query = e.detail.value
         this.searchData(this.query)
@@ -128,8 +133,10 @@
         this.isLoading = false
         wepy.stopPullDownRefresh()
         this.$apply()
+        wx.hideToast()
       }).catch((rej) => {
         console.log(rej)
+        wx.hideToast()
       })
     }
 
@@ -140,7 +147,7 @@
     }
 
     onReachBottom() {
-      if (this.isSearch) {
+      if (this.isSearch === true) {
         if (this.nextPage) {
           this.showLoadMore = true
           this.showNoMore = false
