@@ -3,9 +3,7 @@
     <view class="grid-const">
       <video id="videoPlayer"
              class="video"
-             objectFit="fill"
              src="{{item.playUrl}}"
-             poster="{{item.cover.feed}}"
              duration="{{item.duration}}"
              autoplay="{{isWifi}}"
              @play="onPlay"
@@ -182,7 +180,8 @@
     height: 100%;
     .grid-const {
       .video {
-        width: 100%;
+        width: 100vw;
+        height: calc(100vw * 720 / 1280);
       }
     }
     .grid-var {
