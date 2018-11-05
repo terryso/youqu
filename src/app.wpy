@@ -57,10 +57,10 @@ export default class extends wepy.app {
     tabBar: {
       list: [{
         pagePath: 'pages/index',
-        text: '首页'
+        text: '每日精选'
       }, {
         pagePath: 'pages/category',
-        text: '分类'
+        text: '发现更多'
       }]
     },
     debug: true

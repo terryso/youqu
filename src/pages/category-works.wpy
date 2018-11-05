@@ -87,7 +87,7 @@
 
     loadData(nextPage) {
       getCategoryItems(this.cid, nextPage).then((res) => {
-        this.items = this.items.length === 0 ? res.data : this.items.concat(res.data)
+        this.items = nextPage === undefined ? res.data : this.items.concat(res.data)
         this.items.forEach(function (item) {
           item.durationText = secondToTime(item.duration)
           item.dateText = new Date(item.releaseTime).toLocaleDateString()

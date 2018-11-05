@@ -77,7 +77,9 @@ export function getUserItems(uid, url) {
 
 export function getCategoryItems(cid, url) {
   if (!url) {
-    url = 'https://baobab.kaiyanapp.com/api/v4/categories/videoList?id=' + cid
+    url = 'https://baobab.kaiyanapp.com/api/v4/categories/videoList?id=' + cid + '&udid=05d79663510465d2c1b99af2768189398f172060'
+  } else {
+    url = url + '&udid=05d79663510465d2c1b99af2768189398f172060'
   }
 
   return wepy.request(url).then((res) => {
@@ -103,7 +105,7 @@ export function getCategoryItems(cid, url) {
 }
 
 export function getItem(itemId) {
-  let url = 'https://baobab.kaiyanapp.com/api/v1/video/' + itemId
+  let url = 'https://baobab.kaiyanapp.com/api/v1/video/' + itemId + '?udid=05d79663510465d2c1b99af2768189398f172060'
   return wepy.request(url).then((res) => {
     var statusCode = res.statusCode
     var data = res.data
@@ -116,6 +118,33 @@ export function getItem(itemId) {
       }
       item['cover'] = cover
       return Promise.resolve(item)
+    } else {
+      return Promise.reject({
+        'error_code': statusCode + '',
+        'error_message': '服务器出错了...'
+      })
+    }
+  })
+}
+
+export function searchItems(q, url) {
+  if (!url) {
+    url = 'https://baobab.kaiyanapp.com/api/v3/search?num=10&query=' + q
+  }
+
+  return wepy.request(url).then((res) => {
+    var statusCode = res.statusCode
+    var data = res.data
+    if (statusCode === 200) {
+      var items = data.itemList
+        .filter(item => item.type === 'followCard')
+        .map(item => item.data.content.data)
+
+      var ret = {
+        next_page_url: data.nextPageUrl,
+        data: items
+      }
+      return Promise.resolve(ret)
     } else {
       return Promise.reject({
         'error_code': statusCode + '',

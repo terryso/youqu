@@ -1,40 +1,49 @@
 <template>
   <view class="container">
-    <video id="videoPlayer"
-           class="video"
-           objectFit="fill"
-           src="{{item.playUrl}}"
-           poster="{{item.cover.feed}}"
-           duration="{{item.duration}}"
-           autoplay="{{isWifi}}"
-           @play="onPlay"
-           @ended="onEnded"
-           controls wx:if="{{isValid}}">
-    </video>
-    <image class="poster" src="{{item.cover.feed}}" mode="widthFix" wx:if="{{isValid === false}}" />
-    <view class="text">
-      <text class="title">{{item.title}}</text>
-      <text class="subtitle">{{item.category}} / {{item.durationText}} / {{item.consumption.collectionCount}}人喜欢</text>
-      <text class="detail">{{item.description}}</text>
-      <button class="zan-btn zan-btn--primary" @tap="copyUrl({{item.playUrl}})" wx:if="{{isValid === false}}">复制链接, 粘贴到浏览器中观看</button>
+    <view class="grid-const">
+      <video id="videoPlayer"
+             class="video"
+             objectFit="fill"
+             src="{{item.playUrl}}"
+             poster="{{item.cover.feed}}"
+             duration="{{item.duration}}"
+             autoplay="{{isWifi}}"
+             @play="onPlay"
+             @ended="onEnded"
+             controls wx:if="{{isValid}}">
+      </video>
     </view>
-    <view class="zan-panel-title" wx:if="{{relatedItems.length}}">相关推荐</view>
-    <block wx:for="{{ relatedItems }}" wx:key="id">
-      <view class="zan-panel zan-panel--without-margin-top zan-panel--without-border" @tap="gotoDetail({{item}})">
-        <view class="zan-cell">
-          <view class="zan-cell__bd">
-            <view class="related-video">
-              <image src="{{item.cover.feed}}" mode="aspectFill"/>
-            </view>
-            <view class="related-text">
-              <text class="title">{{item.title}}</text>
-              <text class="subtitle">#{{item.category}} / {{item.durationText}}</text>
+    <view class="grid-var">
+      <scroll-view class="content" scroll-y="true">
+        <image class="poster" src="{{item.cover.feed}}" mode="widthFix" wx:if="{{isValid === false}}"/>
+        <view class="text">
+          <text class="title">{{item.title}}</text>
+          <text class="subtitle">{{item.category}} / {{item.durationText}} / {{item.consumption.collectionCount}}人喜欢
+          </text>
+          <text class="detail">{{item.description}}</text>
+          <button class="zan-btn zan-btn--primary" @tap="copyUrl({{item.playUrl}})" wx:if="{{isValid === false}}">复制链接,
+            粘贴到浏览器中观看
+          </button>
+        </view>
+        <view class="zan-panel-title" wx:if="{{relatedItems.length}}">相关推荐</view>
+        <block wx:for="{{ relatedItems }}" wx:key="id">
+          <view class="zan-panel zan-panel--without-margin-top zan-panel--without-border" @tap="gotoDetail({{item}})">
+            <view class="zan-cell">
+              <view class="zan-cell__bd">
+                <view class="related-video">
+                  <image src="{{item.cover.feed}}" mode="aspectFill"/>
+                </view>
+                <view class="related-text">
+                  <text class="title">{{item.title}}</text>
+                  <text class="subtitle">#{{item.category}} / {{item.durationText}}</text>
+                </view>
+              </view>
             </view>
           </view>
-        </view>
-      </view>
-    </block>
-    <zanLoadmore :nomore="_true" wx:if="{{showNoMore}}"></zanLoadmore>
+        </block>
+        <zanLoadmore :nomore="_true" wx:if="{{showNoMore}}"></zanLoadmore>
+      </scroll-view>
+    </view>
   </view>
 </template>
 
@@ -169,78 +178,86 @@
     flex-direction: column;
     background-color: #555555;
     color: #ffffff;
+    width: 100%;
     height: 100%;
-    .poster {
-      width: 100%;
+    .grid-const {
+      .video {
+        width: 100%;
+      }
     }
-    .video {
-      width: 100%;
-    }
-    .text {
-      display: flex;
-      flex-direction: column;
-      padding: 15px;
-      .title {
-        font-size: 17px;
+    .grid-var {
+      flex: 1;
+      .poster {
+        width: 100%;
+      }
+      .content {
+        height: 100%;
+      }
+      .text {
+        display: flex;
+        flex-direction: column;
+        padding: 15px;
+        .title {
+          font-size: 17px;
+          font-weight: bold;
+        }
+        .subtitle {
+          margin-top: 10px;
+          font-size: 14px;
+          color: lightgrey;
+        }
+        .detail {
+          margin-top: 15px;
+          font-size: 12px;
+          color: lightgrey;
+        }
+        .zan-btn {
+          margin-top: 15px;
+          margin-left: 0;
+        }
+      }
+      .zan-panel-title {
+        font-size: 16px;
         font-weight: bold;
+        line-height: 1;
+        color: #fff;
+        padding: 10px 15px 10px 15px;
       }
-      .subtitle {
-        margin-top: 10px;
-        font-size: 14px;
-        color: lightgrey;
-      }
-      .detail {
-        margin-top: 15px;
-        font-size: 12px;
-        color: lightgrey;
-      }
-      .zan-btn {
-        margin-top: 15px;
-        margin-left: 0;
-      }
-    }
-
-    .zan-panel-title {
-      font-size: 16px;
-      font-weight: bold;
-      line-height: 1;
-      color: #fff;
-      padding: 10px 15px 10px 15px;
-    }
-    .zan-panel {
-      background-color: #555555;
-      .zan-cell {
-        padding: 4px 15px;
-        .zan-cell__bd {
-          display: flex;
-          .related-video {
-            image {
-              width: 150px;
-              height: 80px;
-              border-radius: 4px;
-            }
-          }
-          .related-text {
+      .zan-panel {
+        background-color: #555555;
+        .zan-cell {
+          padding: 4px 15px;
+          .zan-cell__bd {
             display: flex;
-            flex-direction: column;
-            width: 100%;
-            margin-left: 10px;
-            justify-content: center;
-            .title {
-              font-size: 14px;
-              font-weight: bold;
+            .related-video {
+              image {
+                width: 150px;
+                height: 80px;
+                border-radius: 4px;
+              }
             }
-            .subtitle {
-              font-size: 12px;
-              color: lightgrey;
-              margin-top: 10px;
+            .related-text {
+              display: flex;
+              flex-direction: column;
+              width: 100%;
+              margin-left: 10px;
+              justify-content: center;
+              .title {
+                font-size: 14px;
+                font-weight: bold;
+              }
+              .subtitle {
+                font-size: 12px;
+                color: lightgrey;
+                margin-top: 10px;
+              }
             }
           }
         }
       }
-    }
-    .zan-loadmore--nomore .zan-loadmore__tips {
-      background-color: rgba(0, 0, 0, 0);
+      .zan-loadmore--nomore .zan-loadmore__tips {
+        background-color: rgba(0, 0, 0, 0);
+      }
     }
   }
 
