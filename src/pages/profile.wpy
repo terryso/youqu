@@ -1,10 +1,58 @@
-<style lang="less" type="text/less" scoped>
-
+<style lang="scss" scoped>
+  .container {
+    .info {
+      display: flex;
+      flex-direction: column;
+      height: 220px;
+      justify-content: center;
+      align-items: center;
+      background: url("http://img.pptjia.com/image/20171006/d921caf3afdf653126053fa63377ea11.png");
+      background-size: cover;
+      .logo {
+        width: 70px;
+        height: 70px;
+        text-align: center;
+        border-radius: 35px;
+      }
+      .login {
+        margin-top: 15px;
+        font-size: 14px;
+        color: #333333;
+      }
+    }
+    .actions {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      margin-top: 20px;
+      .action {
+        text-align: center;
+        line-height: 70px;
+        height: 70px;
+        font-size: 17px;
+        color: #333333;
+      }
+      .version {
+        margin-top: 30px;
+        text-align: center;
+        font-size: 14px;
+        color: #c9c9c9;
+      }
+    }
+  }
 </style>
 
 <template>
   <view class="container">
-    
+    <view class="info">
+      <image class="logo" src="../resources/logo.jpeg" @tap="doLogin" />
+      <!--<view class="login">点击登录</view>-->
+    </view>
+    <view class="actions">
+      <view class="action" @tap="gotoHistory()">历史纪录</view>
+      <view class="action" @tap="copyGithubLink()">开源(@github)</view>
+      <view class="version">version 1.1.0</view>
+    </view>
   </view>
 </template>
 
@@ -12,11 +60,36 @@
   import wepy from 'wepy'
 
   export default class Profile extends wepy.page {
-    config = {};
+    config = {
+      navigationBarTitleText: '个人中心'
+    };
     components = {};
     props = {};
     data = {};
-    methods = {};
+    methods = {
+      gotoHistory() {
+        wepy.navigateTo({
+          url: 'history'
+        })
+      },
+      copyGithubLink() {
+        let url = 'https://github.com/terryso/youqu'
+        wepy.setClipboardData({data: url}).then((res) => {
+          wepy.showToast({
+            title: '链接复制成功',
+            icon: 'success',
+            duration: 2000
+          })
+        })
+      },
+      doLogin() {
+        wepy.getUserInfo({
+          success: function(res) {
+            console.log(res)
+          }
+        })
+      }
+    };
     events = {};
 
     onLoad() {

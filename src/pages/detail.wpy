@@ -7,7 +7,6 @@
              duration="{{item.duration}}"
              autoplay="{{isWifi}}"
              @play="onPlay"
-             @ended="onEnded"
              controls wx:if="{{isValid}}">
       </video>
     </view>
@@ -48,7 +47,7 @@
 <script>
   import wepy from 'wepy'
   import {getItem, getRelatedItems} from '../api/item'
-  import {secondToTime} from '../common/utils'
+  import {secondToTime, uniqueArray} from '../common/utils'
   import zanLoadmore from '../components/zan-loadmore'
   import {getAppVersion} from '../api/app'
 
@@ -87,16 +86,8 @@
           video_title: this.item.title,
           video_category: this.item.category
         })
-        wepy.setStorage({
-          key: 'lastPlayItem',
-          data: this.item
-        })
-      },
-      onEnded() {
-        wepy.setStorage({
-          key: 'lastPlayItem',
-          data: null
-        })
+
+        this.saveHistory()
       },
       copyUrl(url) {
         wepy.setClipboardData({data: url}).then((res) => {
@@ -106,6 +97,24 @@
             duration: 2000
           })
         })
+        this.saveHistory()
+      }
+    }
+
+    saveHistory() {
+      try {
+        let items = wx.getStorageSync('history')
+        if (!items) {
+          items = []
+        }
+        items.unshift(this.item)
+        items = uniqueArray(items)
+        wepy.setStorage({
+          key: 'history',
+          data: items
+        })
+      } catch (e) {
+        console.log(e)
       }
     }
 

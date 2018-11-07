@@ -44,7 +44,8 @@ export default class extends wepy.app {
       'pages/detail',
       'pages/category',
       'pages/category-works',
-      'pages/profile'
+      'pages/profile',
+      'pages/history'
     ],
     window: {
       backgroundTextStyle: 'dark',
@@ -61,6 +62,9 @@ export default class extends wepy.app {
       }, {
         pagePath: 'pages/category',
         text: '发现更多'
+      }, {
+        pagePath: 'pages/profile',
+        text: '个人中心'
       }]
     },
     debug: true

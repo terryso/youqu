@@ -16,7 +16,9 @@
   import {getCategories} from '../api/category'
 
   export default class Category extends wepy.page {
-    config = {}
+    config = {
+      navigationBarTitleText: '发现更多'
+    }
     components = {}
     props = {}
     data = {

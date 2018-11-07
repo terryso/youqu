@@ -12,3 +12,15 @@ export function secondToTime(second) {
   }
   return minutes + ':' + seconds
 }
+
+export function uniqueArray(origin) {
+  let temp = []
+  let r = []
+  for (let i = 0; i < origin.length; i++) {
+    if (temp.indexOf(origin[i].id) === -1) {
+      temp.push(origin[i].id)
+      r.push(origin[i])
+    }
+  }
+  return r
+}

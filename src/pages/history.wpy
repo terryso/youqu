@@ -6,11 +6,6 @@
     <skeletonLoading wx:if="{{isLoading}}"></skeletonLoading>
     <skeletonLoading wx:if="{{isLoading}}"></skeletonLoading>
     <view wx:else>
-      <view class="search-comp">
-        <view class="search-wrap-inner">
-          <input class="search-wrap" placeholder="搜索" confirm-type="search" @confirm="onConfirm" value="{{query}}"/>
-        </view>
-      </view>
       <block wx:for="{{ items }}" wx:key="id">
         <view class="zan-panel zan-panel--without-margin-top" @tap="gotoDetail({{item}})">
           <view class="zan-cell">
@@ -38,15 +33,14 @@
 
 <script>
   import wepy from 'wepy'
-  import {getItems, searchItems} from '../api/item'
   import {secondToTime} from '../common/utils'
   import zanLoadmore from '../components/zan-loadmore'
   import skeletonLoading from '../components/zan-skeleton-loading'
-  import {getAppVersion} from '../api/app'
 
   export default class Index extends wepy.page {
     config = {
-      enablePullDownRefresh: true
+      enablePullDownRefresh: false,
+      navigationBarTitleText: '历史纪录'
     }
     components = {
       zanLoadmore1: zanLoadmore,
@@ -58,10 +52,7 @@
       showLoadMore: false,
       showNoMore: false,
       _true: true,
-      nextPage: '',
-      isLoading: true,
-      isSearch: false,
-      query: ''
+      isLoading: false,
     }
     methods = {
       gotoDetail(item) {
@@ -69,23 +60,11 @@
         wepy.navigateTo({
           url: 'detail'
         })
-      },
-      onConfirm(e) {
-        wx.showToast({
-          title: '搜索中',
-          icon: 'loading',
-          duration: 2000
-        })
-        this.isSearch = true
-        this.query = e.detail.value
-        this.searchData(this.query)
       }
     }
 
     onLoad() {
-      getAppVersion().then((res) => {
-        wepy.$instance.globalData.showPlayer = res.is_valid
-      })
+
     }
 
     onShow() {
@@ -94,54 +73,21 @@
       }
     }
 
-    loadData(nextPage) {
-      getItems(nextPage).then((res) => {
-        this.handleItems(nextPage, res)
-      }).catch((rej) => {
-        console.log(rej)
-      })
-    }
-
-    searchData(q, nextPage) {
-      searchItems(q, nextPage).then((res) => {
-        this.handleItems(nextPage, res)
-        wx.hideToast()
-      }).catch((rej) => {
-        console.log(rej)
-        wx.hideToast()
-      })
-    }
-
-    handleItems(nextPage, res) {
-      this.items = nextPage === undefined ? res.data : this.items.concat(res.data)
-      this.items.forEach(function (item) {
-        item.durationText = secondToTime(item.duration)
-        item.dateText = new Date(item.releaseTime).toLocaleDateString()
-      })
-      this.nextPage = res.next_page_url
-      this.showLoadMore = this.nextPage
-      this.showNoMore = !this.nextPage
-      this.isLoading = false
-      wepy.stopPullDownRefresh()
-      this.$apply()
-    }
-
-    onPullDownRefresh() {
-      this.isSearch = false
-      this.query = ''
-      this.loadData()
-    }
-
-    onReachBottom() {
-      this.showLoadMore = this.nextPage
-      this.showNoMore = !this.nextPage
-      this.$apply()
-      if (this.nextPage) {
-        if (this.isSearch) {
-          this.searchData(this.query, this.nextPage)
-        } else {
-          this.loadData(this.nextPage)
+    loadData() {
+      try {
+        var items = wx.getStorageSync('history')
+        if (items) {
+          this.items = items
+          this.items.forEach(function (item) {
+            item.durationText = secondToTime(item.duration)
+            item.dateText = new Date(item.releaseTime).toLocaleDateString()
+          })
+          this.isLoading = false
+          this.$apply()
         }
+      } catch (e) {
+        this.isLoading = false
+        console.log(e)
       }
     }
 
@@ -160,32 +106,6 @@
   @import '../zanui/tag.scss';
 
   .container {
-
-    .search-comp {
-      display: flex;
-      align-items: center;
-      background: #fff;
-      padding: 8px 10px;
-      border-bottom: 1px solid #f0f0f0;
-    }
-    .search-wrap-inner {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      background: #f6f6f6;
-      padding: 6px 8px;
-      border-radius: 4px;
-    }
-    .search-wrap {
-      width: 100%;
-      font-size: 16px;
-      margin-left: 6px;
-      margin-right: 5px;
-    }
-    .ds-search {
-      font-size: 18px;
-      color: #ccc;
-    }
 
     .zan-field {
       background-color: grey;

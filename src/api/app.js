@@ -5,5 +5,5 @@ export function getApp(version) {
 }
 
 export function getAppVersion() {
-  return api.get('/version_1_0_4.json')
+  return api.get('/version_1_1_0.json')
 }
