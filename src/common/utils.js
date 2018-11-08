@@ -24,3 +24,7 @@ export function uniqueArray(origin) {
   }
   return r
 }
+
+export function timestampToDate(ts) {
+  return new Date(ts).toLocaleDateString()
+}

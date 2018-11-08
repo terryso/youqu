@@ -153,3 +153,32 @@ export function searchItems(q, url) {
     }
   })
 }
+
+export function getItemComments(itemId, url) {
+  if (!url) {
+    url = 'https://baobab.kaiyanapp.com/api/v2/replies/video?videoId=' + itemId
+  }
+
+  return wepy.request(url).then((res) => {
+    var statusCode = res.statusCode
+    var data = res.data
+    if (statusCode === 200) {
+      var items = data.itemList
+        .filter(item => item.type === 'reply')
+        .map(item => item.data)
+
+      var ret = {
+        next_page_url: data.nextPageUrl,
+        total: data.total,
+        data: items
+      }
+      return Promise.resolve(ret)
+    } else {
+      return Promise.reject({
+        'error_code': statusCode + '',
+        'error_message': '服务器出错了...'
+      })
+    }
+  })
+}
+

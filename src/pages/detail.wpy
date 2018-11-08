@@ -1,18 +1,18 @@
 <template>
   <view class="container">
-    <view class="grid-const">
+    <view class="grid-const" wx:if="{{isValid}}">
       <video id="videoPlayer"
              class="video"
              src="{{item.playUrl}}"
              duration="{{item.duration}}"
              autoplay="{{isWifi}}"
              @play="onPlay"
-             controls wx:if="{{isValid}}">
+             controls>
       </video>
     </view>
     <view class="grid-var">
-      <scroll-view class="content" scroll-y="true">
-        <image class="poster" src="{{item.cover.feed}}" mode="widthFix" wx:if="{{isValid === false}}"/>
+      <image class="poster" src="{{item.cover.feed}}" mode="widthFix" wx:if="{{isValid === false}}"/>
+      <scroll-view class="content" scroll-y="true" @scrolltolower="loadMoreComments">
         <view class="text">
           <text class="title">{{item.title}}</text>
           <text class="subtitle">{{item.category}} / {{item.durationText}} / {{item.consumption.collectionCount}}人喜欢
@@ -38,7 +38,25 @@
             </view>
           </view>
         </block>
-        <zanLoadmore :nomore="_true" wx:if="{{showNoMore}}"></zanLoadmore>
+        <view class="zan-panel-title" wx:if="{{comments.length}}">评论 {{comments_count}}</view>
+        <block wx:for="{{ comments }}" wx:key="id">
+          <view class="zan-panel  zan-panel--without-border">
+            <view class="zan-cell">
+              <view class="zan-cell__bd">
+                <view class="avatar">
+                  <image src="{{item.user.avatar}}" mode="widthFix" />
+                </view>
+                <view class="comment">
+                  <text class="nickname">{{item.user.nickname}}</text>
+                  <text class="message">{{item.message}}</text>
+                  <text class="date">{{item.createDate}}</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </block>
+        <zanLoadmore1 :loading="_true" wx:if="{{showLoadMore}}"></zanLoadmore1>
+        <zanLoadmore2 :nomore="_true" wx:if="{{showNoMore}}"></zanLoadmore2>
       </scroll-view>
     </view>
   </view>
@@ -46,7 +64,7 @@
 
 <script>
   import wepy from 'wepy'
-  import {getItem, getRelatedItems} from '../api/item'
+  import {getItem, getItemComments, getRelatedItems} from '../api/item'
   import {secondToTime, uniqueArray} from '../common/utils'
   import zanLoadmore from '../components/zan-loadmore'
   import {getAppVersion} from '../api/app'
@@ -54,15 +72,21 @@
   export default class Detail extends wepy.page {
     config = {}
     components = {
-      zanLoadmore: zanLoadmore
+      zanLoadmore1: zanLoadmore,
+      zanLoadmore2: zanLoadmore
     }
     data = {
       item: {},
       relatedItems: [],
+      comments: [],
+      comments_count: 0,
       isWifi: false,
       _true: true,
+      showLoadMore: false,
       showNoMore: false,
-      isValid: false
+      isValid: false,
+      nextPage: '',
+      itemId: ''
     }
     methods = {
       gotoDetail(item) {
@@ -98,6 +122,14 @@
           })
         })
         this.saveHistory()
+      },
+      loadMoreComments() {
+        this.showLoadMore = this.nextPage
+        this.showNoMore = !this.nextPage
+        this.$apply()
+        if (this.nextPage) {
+          this.loadComments(this.itemId, this.nextPage)
+        }
       }
     }
 
@@ -136,6 +168,7 @@
         this.item = wepy.$instance.globalData.selectedItem
         item = this.item.id
       }
+      this.itemId = item
 
       getRelatedItems(item).then((res) => {
         this.relatedItems = res
@@ -143,7 +176,21 @@
           item.durationText = secondToTime(item.duration)
           item.dateText = new Date(item.releaseTime).toLocaleDateString()
         })
-        this.showNoMore = true
+        this.$apply()
+        this.loadComments(item)
+      })
+    }
+
+    loadComments(item, nextPage) {
+      getItemComments(item, nextPage).then((res) => {
+        this.comments = nextPage === undefined ? res.data : this.comments.concat(res.data)
+        this.comments_count = res.total
+        this.comments.forEach(function (item) {
+          item.createDate = new Date(item.createTime).toLocaleDateString()
+        })
+        this.nextPage = res.next_page_url
+        this.showLoadMore = this.nextPage
+        this.showNoMore = !this.nextPage
         this.$apply()
       })
     }
@@ -188,6 +235,7 @@
     width: 100%;
     height: 100%;
     .grid-const {
+      height: calc(100vw * 720 / 1280);
       .video {
         width: 100vw;
         height: calc(100vw * 720 / 1280);
@@ -197,9 +245,10 @@
       flex: 1;
       .poster {
         width: 100%;
+        height: calc(100vw * 720 / 1280);
       }
       .content {
-        height: 100%;
+        height: calc(100vh - 100vw * 720 / 1280);
       }
       .text {
         display: flex;
@@ -265,6 +314,30 @@
       }
       .zan-loadmore--nomore .zan-loadmore__tips {
         background-color: rgba(0, 0, 0, 0);
+      }
+      .avatar {
+        image {
+          width: 40px;
+          height: 40px;
+          border-radius: 20px;
+        }
+      }
+      .comment {
+        display: flex;
+        flex-direction: column;
+        margin-left: 10px;
+        .nickname {
+          font-size: 16px;
+        }
+        .message {
+          font-size: 14px;
+          margin-top: 10px;
+        }
+        .date {
+          font-size: 11px;
+          color: #cccccc;
+          margin-top: 15px;
+        }
       }
     }
   }
