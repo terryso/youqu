@@ -67,7 +67,7 @@
       gotoDetail(item) {
         wepy.$instance.globalData.selectedItem = item
         wepy.navigateTo({
-          url: 'detail'
+          url: 'detail?fromIndex=1'
         })
       },
       onConfirm(e) {

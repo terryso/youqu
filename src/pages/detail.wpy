@@ -1,24 +1,27 @@
 <template>
   <view class="container">
-    <view class="grid-const" wx:if="{{isValid}}">
-      <video id="videoPlayer"
-             class="video"
-             src="{{item.playUrl}}"
-             duration="{{item.duration}}"
-             autoplay="{{isWifi}}"
-             @play="onPlay"
-             controls>
-      </video>
-    </view>
+<!--    <view class="grid-const" wx:if="{{isValid}}">-->
+<!--      <video id="videoPlayer"-->
+<!--             class="video"-->
+<!--             src="{{item.playUrl}}"-->
+<!--             duration="{{item.duration}}"-->
+<!--             autoplay="{{isWifi}}"-->
+<!--             @play="onPlay"-->
+<!--             controls>-->
+<!--      </video>-->
+<!--    </view>-->
     <view class="grid-var">
-      <image class="poster" src="{{item.cover.feed}}" mode="widthFix" wx:if="{{isValid === false}}"/>
+      <image class="poster" src="{{item.cover.feed}}" mode="widthFix" />
       <scroll-view class="content" scroll-y="true" @scrolltolower="loadMoreComments">
         <view class="text">
           <text class="title">{{item.title}}</text>
           <text class="subtitle">{{item.category}} / {{item.durationText}} / {{item.consumption.collectionCount}}人喜欢
           </text>
           <text class="detail">{{item.description}}</text>
-          <button class="zan-btn zan-btn--primary" @tap="copyUrl({{item.playUrl}})" wx:if="{{isValid === false}}">复制链接,
+          <button class="zan-btn zan-btn--primary" @tap="copyUrl({{'https://www.wehack.top/' + item.id}})" wx:if="{{fromIndex === '1'}}">复制链接,
+            粘贴到浏览器中观看
+          </button>
+          <button class="zan-btn zan-btn--primary" @tap="copyUrl({{item.playUrl}})" wx:if="{{fromIndex === '0'}}">复制链接,
             粘贴到浏览器中观看
           </button>
         </view>
@@ -86,7 +89,8 @@
       showNoMore: false,
       isValid: false,
       nextPage: '',
-      itemId: ''
+      itemId: '',
+      fromIndex: '0'
     }
     methods = {
       gotoDetail(item) {
@@ -154,6 +158,9 @@
       this.isValid = wepy.$instance.globalData.showPlayer
       this.$apply()
 
+      if (options.fromIndex !== undefined) {
+        this.fromIndex = options.fromIndex
+      }
       let item = options.item
       if (item) {
         getItem(item).then((res) => {

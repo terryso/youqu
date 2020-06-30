@@ -53,7 +53,8 @@ export default class extends wepy.app {
       navigationBarBackgroundColor: '#ffffff',
       navigationBarTitleText: '大茄视频',
       navigationBarTextStyle: 'black',
-      enablePullDownRefresh: false
+      enablePullDownRefresh: false,
+      qbDebugKey: ['401fe39168247d8f7de345dabc887b31']
     },
     tabBar: {
       list: [{
